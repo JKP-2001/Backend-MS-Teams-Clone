@@ -23,7 +23,7 @@ const runApp = () => {
 
     mongoose.set('strictQuery', false);
 
-    const url = "mongodb+srv://jkp6957:" + process.env.mongopass + "@cluster0.ncrzato.mongodb.net/Clone?retryWrites=true&w=majority"
+    const url = "mongodb+srv://"+process.env.mongo_user+":"+process.env.mongopass+"@cluster0.ncrzato.mongodb.net/Clone?retryWrites=true&w=majority";
 
     mongoose.connect(url, (err, res) => {
         //console.log(err, res);
