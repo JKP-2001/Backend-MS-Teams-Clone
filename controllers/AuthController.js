@@ -5,14 +5,13 @@ import express from "express";
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import handlebars from "handlebars";
+
 import { User } from "../models/User.js";
-import { getDate, sendEmail, generateAndSendOTP } from "../functions.js";
+import { getDate, sendEmail, generateAndSendOTP, sendVerifyEmail, sendResetPasswordEmail } from "../functions.js";
 
 const saltRound = 10;
 const JWT_SECRET = process.env.JWT_SECRET;
-
-
-
 
 
 const createUser = async (req, res) => {
@@ -29,17 +28,11 @@ const createUser = async (req, res) => {
         };
 
         const token = jwt.sign({ user: payLoad }, JWT_SECRET, { expiresIn: '1h' });
-
-        // const text = `Hello ${payLoad.firstName + " " + payLoad.lastName },\n\nThank you for showing interest in https://teams.com. To finish signing up, you just need to confirm your email by clicking the link below.\nThe link is valid for next 1 hour.\n\nhttp://localhost:5000/teams_clone/v1/account/accept/${token}\n\nThanking You\nTeam Org.`
-
-
-
-        const text = `Hello ${payLoad.firstName + " " + payLoad.lastName},\n\nThank you for showing interest in https://teams.com. To finish signing up, you just need to confirm your email by clicking the link below.\nThe link is valid for next 1 hour.\n\nhttp://localhost:3000/create-password/${token} \n\nThanking You\nTeam Org.`
-
+        
         const subject = "Confirm your account on Teams"
+        const link = `http://localhost:3000/create-password/${token}`
 
-        sendEmail(payLoad.email, subject, text);
-
+        sendVerifyEmail(payLoad.email,subject, payLoad.firstName + " " + payLoad.lastName,link)
         res.status(200).send({ "success": true, details: "Sent" });
         return;
 
@@ -112,7 +105,6 @@ const checkOTP = async (req, res) => {
     try {
         const user_otp = req.body.otp;
         const user = req.user;
-        // await User.findByIdAndUpdate(user._id,{loginDates:user.loginDates, lastotp:otp});
         const findUser = await User.findOne({ email: user.email });
         if (!findUser) {
             throw new Error("User Not Found");
@@ -155,13 +147,11 @@ const sentResetPasswordMail = async (req, res) => {
 
         const token = jwt.sign({ user: payLoad }, JWT_SECRET, { expiresIn: '900s' });
 
-        const text = `Hello ${isUser.firstName + " " + isUser.lastName}, Somebody requested a new password for the https://teams.com account associated with ${isUser.email}.\n\n No changes have been made to your account yet.\n\nYou can reset your password by clicking the link below:\nhttp://localhost:3000/set-new-password/${token}  \n\nLink is valid for next 15 mins.\n
-        If you did not request a new password, please let us know immediately by replying to this email.\n\nThanking You, \nThe Team Org`
-
         const subject = "Reset Password Request"
 
-        const result = sendEmail(isUser.email, subject, text);
-        console.log({ result });
+        const link = `http://localhost:3000/set-new-password/${token}`;
+
+        sendResetPasswordEmail(isUser.email, subject, isUser.firstName + " " + isUser.lastName, isUser.email, link)
 
         res.status(200).send({ "success": true, "email": "Sent" });
         return;
