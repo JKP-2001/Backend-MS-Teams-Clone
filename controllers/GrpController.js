@@ -430,7 +430,7 @@ const transferOwnerShip = async(req,res)=>{
         if(!members.includes(newUser._id)){
             members.push(newUser._id);
         }
-        
+
         const updatedGroup = await groupModel.findByIdAndUpdate(grp._id,{owner:newUser._id, admins, members});
         res.status(200).json({success:true, details:`ownership transferred to ${newOwnerEmail}`});
         return;
@@ -463,6 +463,7 @@ const transferOwnerShip = async(req,res)=>{
 //         res.status(400).json({success:false, error:err.toString()});
 //     }
 // }
+//ll
 
 
 export { createNewGroup, deleteGroup, getAllGroups, getUserGroups, addAdmins, addUserToGroup, getJoiningCode, resetJoiningCode, setGrpType, getDetailsOfAGroup, transferOwnerShip};
