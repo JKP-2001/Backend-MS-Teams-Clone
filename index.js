@@ -71,9 +71,9 @@ const runApp = () => {
 
     mongoose.set('strictQuery', false);
 
-    // const url = "mongodb+srv://" + process.env.mongo_user + ":" + process.env.mongopass + "@cluster0.ncrzato.mongodb.net/Clone?retryWrites=true&w=majority";
+    const url = "mongodb+srv://" + process.env.mongo_user + ":" + process.env.mongopass + "@cluster0.ncrzato.mongodb.net/Clone?retryWrites=true&w=majority";
     // const url = "mongodb://localhost:27017"
-    const url = "mongodb://0.0.0.0:27017/";
+    // const url = "mongodb://0.0.0.0:27017/";
 
     mongoose.connect(url, (err, res) => {
         //console.log(err, res);
@@ -81,7 +81,10 @@ const runApp = () => {
             // res.json({err:err.toString()})
             console.log({err:err.toString()})
         }
-        console.log("connected to mongodb");
+        else
+        {
+            console.log("connected to mongodb");
+        }
     });
     const PORT = process.env.PORT || 5000;
 

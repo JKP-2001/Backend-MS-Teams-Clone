@@ -31,6 +31,7 @@ const createUser = async (req, res) => {
         
         const subject = "Confirm your account on Teams"
         const link = `http://localhost:3000/create-password/${token}`
+        console.log("token  ",token,"  token");
 
         sendVerifyEmail(payLoad.email,subject, payLoad.firstName + " " + payLoad.lastName,link)
         res.status(200).send({ "success": true, details: "Sent" });
