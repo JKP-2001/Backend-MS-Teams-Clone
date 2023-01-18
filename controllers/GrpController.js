@@ -4,8 +4,8 @@ import { generateGrpCode } from "../functions.js";
 import { groupModel } from "../Models/Group.js"
 import { User } from "../models/User.js";
 
-
-const getAllGroupsFromArray = async (grpArray) => {
+//Function to extract groups
+async function getAllGroupsFromArray(grpArray) {
     let array = [];
     for (let i = 0; i < grpArray.length; i++) {
         const grp = await groupModel.findById(grpArray[i]);
@@ -21,7 +21,6 @@ const getAllGroupsFromArray = async (grpArray) => {
 const getAllGroups = async (req, res) => {
     try {
         const query = req.query.type;
-        console.log({ query });
         let allGroups = [];
         if (query === "public") {
             allGroups = await groupModel.find({ isPublic: true });
@@ -31,7 +30,6 @@ const getAllGroups = async (req, res) => {
         }
         else if (query === "all") {
             allGroups = await groupModel.find({});
-            console.log({ allGroups })
         }
         else {
             throw new Error("type required in query")
@@ -111,6 +109,9 @@ const addAdmins = async (req, res) => {
                 if (!grp.admins.includes(isUser._id)) {
                     throw new Error("Requested email is not an admin.")
                 }
+                if(String(isUser._id) === String(grp.owner)){
+                    throw new Error("Can remove owner from the admin.")
+                }
                 let admins = grp.admins;
                 admins.splice(admins.indexOf(isUser._id), 1);
                 const updatedGrp = await groupModel.findByIdAndUpdate(grpid, { admins: admins });
@@ -178,11 +179,13 @@ const addUserToGroup = async (req, res) => {
                 }
                 let members = grp.members;
 
-                if(members.length === 0){
-                    throw new Error("User Not Exisited In the Group.")
-                }
+                
                 if(!members.includes(isUser._id)){
                     throw new Error("User Not Exisited In the Group.")
+                }
+
+                if(String(grp.owner) === String(isUser._id)){
+                    throw new Error("You are the owner, please transfer the ownership first.");
                 }
 
                 members.splice(members.indexOf(isUser._id),1);
@@ -221,11 +224,16 @@ const createNewGroup = async (req, res) => {
 
         const body = req.body;
         const grpCode = generateGrpCode();
-
+        const admins = [user._id];
+        const members = [user._id];
         const data = {
             name: "Grp_" + body.name,
             joiningCode: grpCode,
             owner: user._id,
+            createdDateAndTime:Date.now(),
+            admins:admins,
+            members:members
+
         }
 
         const create = await groupModel.create(data);
@@ -291,7 +299,7 @@ const getJoiningCode = async(req,res)=>{
         if(!grp){
             throw new Error("Group doesn't exist");
         }
-        
+
         if(!grp.admins.includes(isUser._id) && String(grp.owner) !== String(isUser._id)){
             throw new Error("You are not an admin of this group");
         }
@@ -315,7 +323,7 @@ const resetJoiningCode = async(req,res)=>{
         if(!grp){
             throw new Error("Group doesn't exist");
         }
-        
+
         if(!grp.admins.includes(isUser._id) && String(grp.owner) !== String(isUser._id)){
             throw new Error("You are not an admin of this group");
         }
@@ -342,7 +350,7 @@ const setGrpType = async(req,res)=>{
         if(!grp){
             throw new Error("Group doesn't exist");
         }
-        
+
         if(String(grp.owner) !== String(isUser._id)){
             throw new Error("You are not the owner of this group");
         }
@@ -362,7 +370,7 @@ const getDetailsOfAGroup = async(req,res)=>{
         }
         const grpid = req.body.group_id;
         const grp= await groupModel.findById(grpid);
-        
+
         if(!grp){
             throw new Error("Group doesn't exist");
         }
@@ -401,7 +409,7 @@ const transferOwnerShip = async(req,res)=>{
         }
         const grpid = req.body.group_id;
         const grp= await groupModel.findById(grpid);
-        
+
         if(!grp){
             throw new Error("Group doesn't exist");
         }
@@ -412,7 +420,7 @@ const transferOwnerShip = async(req,res)=>{
 
         const newOwnerEmail = req.body.email;
         const newUser = await User.findOne({email:newOwnerEmail});
-        
+
         if(!newUser){
             throw new Error("Requested user is not exisited.");
         }
@@ -421,15 +429,19 @@ const transferOwnerShip = async(req,res)=>{
             throw new Error("You cannot add yourself as owner.");
         }
 
+        let members = grp.members;
+        if(!members.includes(newUser._id)){
+            throw new Error("You can transfer ownership only to the members of the group.")
+        }
+        
+        members.push(newUser._id);
+
         let admins = grp.admins;
         if(!admins.includes(newUser._id)){
             admins.push(newUser._id);
         }
 
-        let members = grp.members;
-        if(!members.includes(newUser._id)){
-            members.push(newUser._id);
-        }
+        
 
         const updatedGroup = await groupModel.findByIdAndUpdate(grp._id,{owner:newUser._id, admins, members});
         res.status(200).json({success:true, details:`ownership transferred to ${newOwnerEmail}`});

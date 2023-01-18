@@ -8,8 +8,10 @@ const groupSchema = new mongoose.Schema({
     members:[{type:mongoose.Schema.Types.ObjectId, default:[]}],
     isPublic:{type:Boolean, default:false},
     itemsPosted:[{type:mongoose.Schema.Types.ObjectId, default:[]}],
+    meetingPosted:[{type:mongoose.Schema.Types.ObjectId, default:[]}],
     assignmentsPosted:[{type:mongoose.Schema.Types.ObjectId, default:[]}],
     logo:{type:String, default:''},
+    createdDateAndTime:{type:Date,required:true}
 })
 
 const groupModel = mongoose.model("Group",groupSchema);
