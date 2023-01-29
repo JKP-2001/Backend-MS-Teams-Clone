@@ -7,10 +7,6 @@ import { groupAssignmentModel, groupPostModel, scheduleMeetModel } from "../Mode
 import mongoose from "mongoose";
 
 
-
-
-
-
 const postNewItem = async (req, res) => {
     try {
         const groupDetails = req.body.groupDetails;
@@ -41,7 +37,7 @@ const postNewItem = async (req, res) => {
             return;
         }
 
-        else if (type == "meet") {
+        else if (type === "meet") {
             const body = ({
                 meetTitle:req.body.title,
                 meetDateTime: req.body.starting_date,
@@ -67,5 +63,8 @@ const postNewItem = async (req, res) => {
         res.status(400).json({ error: err.toString() })
     }
 }
+
+
+// const getAllItem
 
 export { postNewItem };

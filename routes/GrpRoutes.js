@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import express from "express";
 import { fetchUser } from "../middlewares/fetchUser.js";
-import { addAdmins, addUserToGroup, createNewGroup, deleteGroup, getAllGroups, getDetailsOfAGroup, getJoiningCode, getUserGroups, resetJoiningCode, setGrpType, transferOwnerShip } from "../Controllers/GrpController.js";
+import { addAdmins, addUserToGroup, createNewGroup, deleteGroup, getAllGroups, getDetailsOfAGroup, getJoiningCode, getUserGroups, joinGrpByCode, resetJoiningCode, setGrpType, transferOwnerShip } from "../Controllers/GrpController.js";
 
 const grpRouter = express.Router();
 
@@ -16,6 +16,7 @@ grpRouter.patch("/group/resetcode",fetchUser,resetJoiningCode)
 grpRouter.patch("/group/setgrptype",fetchUser,setGrpType);
 grpRouter.get("/group/getDetails",fetchUser,getDetailsOfAGroup);
 grpRouter.patch("/group/transferownership",fetchUser,transferOwnerShip);
+grpRouter.patch("/group/joinbycode",fetchUser,joinGrpByCode);
 
 
 export {grpRouter}
