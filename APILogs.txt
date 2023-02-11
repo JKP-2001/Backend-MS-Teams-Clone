@@ -1,0 +1,6 @@
+GET: /teams_clone/v1/group/allgroups called by user at 1675071317561
+GET: /teams_clone/v1/group/userallgroups called by user j.pandey@iitg.ac.in at 1675889193652
+GET: /teams_clone/v1/group/userallgroups called by user j.pandey@iitg.ac.in at 1675889418396
+GET: /teams_clone/v1/group/getcode called by user j.pandey@iitg.ac.in at 1675889435635
+GET: /teams_clone/v1/group/getDetails called by user j.pandey@iitg.ac.in at 1675889445848
+GET: /teams_clone/v1/group/getDetails called by user j.pandey@iitg.ac.in at 1675889455362

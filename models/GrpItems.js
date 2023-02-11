@@ -5,7 +5,9 @@ const repliesSchema = new mongoose.Schema({
     reply:{type:String, required:true},
     repliedToPeople:[{type:mongoose.Schema.Types.ObjectId}],
     dateTime:{type:Date, default:Date.now()},
-    replyToGrp:{type:mongoose.Schema.Types.ObjectId}
+    replyToGrp:{type:mongoose.Schema.Types.ObjectId},
+    replyToPost:{type:mongoose.Schema.Types.ObjectId},
+    replyToMeet:{type:mongoose.Schema.Types.ObjectId},
 })
 
 

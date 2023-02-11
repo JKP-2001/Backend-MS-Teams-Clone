@@ -2,11 +2,13 @@
   "name": "teams-clone-backend",
   "version": "1.0.0",
   "description": "Backend Of MS Teams Clone",
-  "main": "index.js",
-  "type": "module",
+  "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon app.js",
+    "start": "node app.js"
   },
+  "type": "module",
   "author": "JKP-2001",
   "license": "ISC",
   "dependencies": {
