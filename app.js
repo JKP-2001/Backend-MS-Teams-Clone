@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
-
 dotenv.config();
+
 import express from "express";
 import mongoose from "mongoose";
 import authRouter from "./Routes/AuthRoute.js";
@@ -9,13 +9,18 @@ import swaggerUi from "swagger-ui-express"
 import methodOverride from "method-override";
 import morgan from "morgan";
 import { grpRouter } from "./Routes/GrpRoutes.js";
-import {assRouter } from "./routes/AssignmentRoutes.js";
+import path from "path";
+import { grpItemRoutes } from "./Routes/GrpItemRoutes.js";
+import { assRouter } from "./routes/AssignmentRoutes.js";
 
-const BASE_URL = process.env.BASE_URL
+
+const BASE_URL = process.env.BASE_URL;
 const app = express();
+
 app.use(express.json());
 app.use(methodOverride())
 app.use(morgan("dev"));
+app.use('/uploads', express.static('uploads'));
 
 // enable CORS
 app.use((req, res, next) => {
@@ -43,7 +48,8 @@ app.use((req, res, next) => {
 
 app.use(BASE_URL, authRouter);
 app.use(BASE_URL, grpRouter);
-app.use(BASE_URL, assRouter);
+app.use(BASE_URL,grpItemRoutes)
+app.use(BASE_URL,assRouter)
 
 
 const swaggerDefinition = {
@@ -72,12 +78,17 @@ const runApp = () => {
     mongoose.set('strictQuery', false);
 
     // const url = "mongodb+srv://" + process.env.mongo_user + ":" + process.env.mongopass + "@cluster0.ncrzato.mongodb.net/Clone?retryWrites=true&w=majority";
-    // const url = "mongodb://localhost:27017
-    mongoose.connect(process.env.MONGO_URL).then(()=>{
-        console.log("Connected to MongoDB")
-    }).catch((err)=>{
-        console.log(err)
-    })
+    // const url = "mongodb://localhost:27017"
+    const url = "mongodb://0.0.0.0:27017/clone";
+
+    mongoose.connect(url, (err, res) => {
+        //console.log(err, res);
+        if(err){
+            // res.json({err:err.toString()})
+            console.log({err:err.toString()})
+        }
+        console.log("connected to mongodb");
+    });
     const PORT = process.env.PORT || 5000;
 
     app.listen(PORT, () => {

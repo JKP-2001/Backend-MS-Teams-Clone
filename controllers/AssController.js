@@ -95,9 +95,12 @@ const createAssignment=async (req, res) => {
   const deleteAssignment = async (req, res) => {
     try {
       const assignment = await Assignment.findById(req.params.id);
+      if(!assignment)throw new Error("Assignment not found")
       const grp = await groupModel.findById(assignment.grpId);
-      if (req.user.id !== grp.owner) {
-        return res.status(401).json("You are not allowed to do that");
+      if(!grp)throw new Error("Group not found")
+      const user=await getUser(req.user.email)
+      if (user._id !== grp.owner && !grp.admins.includes(user._id)) {
+        throw new Error("You are not allowed to do that");
       }
       const newAssignmentsPosted = grp.assignmentsPosted.map((ids) => {
         return ids != req.params.id;

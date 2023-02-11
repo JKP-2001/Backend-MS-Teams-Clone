@@ -215,9 +215,19 @@ const generateGrpCode = () => {
     return x;
 }
 
+function ReadAppend(file,data){
+    // append data to file
+    fs.appendFileSync(file,data, 'utf8');
+    console.log("Data is appended to file successfully.")
+}
+// edit this with your file names
+// file = 'name_of_main_file.csv';
+// appendFile = 'name_of_second_file_to_combine.csv';
 
 
-export { getDate, sendEmail, generateAndSendOTP, generateGrpCode, sendVerifyEmail, sendResetPasswordEmail, sendOtp }
+
+
+export { getDate, sendEmail, generateAndSendOTP, generateGrpCode, sendVerifyEmail, sendResetPasswordEmail, sendOtp, ReadAppend }
 
 
 

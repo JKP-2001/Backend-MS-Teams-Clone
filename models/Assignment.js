@@ -57,7 +57,7 @@ const assignmentScchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
-  submission: { submission },
+  submission: submission,
 });
 
 const Assignment = mongoose.model("Assignment", assignmentScchema);

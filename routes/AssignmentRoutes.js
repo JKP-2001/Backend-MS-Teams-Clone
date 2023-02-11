@@ -22,7 +22,7 @@ assRouter.get("/allAssignment/:id", fetchUser, );
 assRouter.put("/assignment/:id", fetchUser,uppdateAssignment );
 
 // Delete Assignment
-assRouter.delete("/assignment/:id", fetchUser,deleteAssignment );
+assRouter.delete("/assignment/:id", fetchUser,deleteAssignment);
 
 // Turn in Assignment
 assRouter.post("/assignment/turnin/:id", fetchUser,turnInAssignment);

@@ -41,9 +41,6 @@ const userSchema = new mongoose.Schema({
         type:String,
         default:""
     },
-    assignmentsPosted:[
-        {type:mongoose.Schema.Types.ObjectId, default:[]}
-    ],
     assignmentsAssign:[
         {type:mongoose.Schema.Types.ObjectId, default:[]}
     ],
