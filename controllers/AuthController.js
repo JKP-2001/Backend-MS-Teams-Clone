@@ -1,6 +1,5 @@
 import dotenv from "dotenv";
 dotenv.config();
-
 import express from "express";
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
@@ -12,7 +11,6 @@ import { getDate, sendEmail, generateAndSendOTP, sendVerifyEmail, sendResetPassw
 
 const saltRound = 10;
 const JWT_SECRET = process.env.JWT_SECRET;
-
 
 const createUser = async (req, res) => {
     try {
