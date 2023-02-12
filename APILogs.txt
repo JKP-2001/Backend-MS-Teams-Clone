@@ -6,3 +6,7 @@ GET: /teams_clone/v1/group/getDetails called by user j.pandey@iitg.ac.in at 1675
 GET: /teams_clone/v1/group/getDetails called by user j.pandey@iitg.ac.in at 1675889455362POST: /teams_clone/v1/group/createnewgrp called by user innovatorsolx@gmail.com at 1676111401829
 POST: /teams_clone/v1/group/createnewgrp called by user innovatorsolx@gmail.com at 1676111442715
 GET: /teams_clone/v1/group/allgroups called by user at 1676111454418
+POST: /teams_clone/v1/group/createnewgrp called by user innovatorsolx@gmail.com at 1676112738323
+PATCH: /teams_clone/v1/group/member?action=add called by user innovatorsolx@gmail.com at 1676193439043
+PATCH: /teams_clone/v1/group/member?action=add called by user innovatorsolx@gmail.com at 1676193472354
+PATCH: /teams_clone/v1/group/member?action=add called by user innovatorsolx@gmail.com at 1676193488939

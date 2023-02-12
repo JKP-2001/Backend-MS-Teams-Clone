@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 const submission = {
-  userId: {
-    type: { type: mongoose.Schema.Types.ObjectId },
-  },
+  userId: 
+    { type: mongoose.Schema.Types.ObjectId },
+  
   material: [
     {
       type: String,
@@ -31,7 +31,8 @@ const assignmentScchema = new mongoose.Schema({
     required: true,
   },
   grpId: {
-    type: { type: mongoose.Schema.Types.ObjectId },
+    type:  mongoose.Schema.Types.ObjectId ,
+    require:true
   },
   instructions: {
     type: String,
@@ -57,7 +58,7 @@ const assignmentScchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
-  submission: submission,
+  submission: [submission],
 });
 
 const Assignment = mongoose.model("Assignment", assignmentScchema);

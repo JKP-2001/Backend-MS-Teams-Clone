@@ -117,7 +117,7 @@ const checkOTP = async (req, res) => {
             email: findUser.email,
             role: findUser.role
         }
-        const token = jwt.sign({ user: payLoad }, JWT_SECRET, { expiresIn: '10h' });
+        const token = jwt.sign({ user: payLoad }, JWT_SECRET, { expiresIn: '240h' });
         const currDateTime = getDate();
         findUser.loginDates.push(currDateTime);
         const updatedUser = await User.findByIdAndUpdate(findUser._id, { loginDates: findUser.loginDates, lastotp: "" });
