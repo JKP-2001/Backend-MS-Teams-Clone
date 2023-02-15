@@ -1,6 +1,5 @@
 import dotenv from "dotenv";
 dotenv.config();
-
 import express from "express";
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
@@ -87,7 +86,7 @@ const loginUser = async (req, res) => {
                 role: user.role,
                 otp: otp
             }
-            const token = jwt.sign({ user: payLoad }, JWT_SECRET, { expiresIn: '300s' });
+            const token = jwt.sign({ user: payLoad }, JWT_SECRET);
             const sendingOtp = await User.findByIdAndUpdate(user._id, { lastotp: otp });
 
             res.status(200).json({ success: true, token: token });

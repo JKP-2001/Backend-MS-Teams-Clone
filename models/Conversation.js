@@ -1,12 +1,12 @@
 import mongoose from "mongoose";
 
 const conversationSchema=new mongoose.Schema({
-    member:{
-        type:array,
+    members:{
+        type:Array,
         default:[]
     }
 },{timestamps:true})
 
 const Conversations=mongoose.model('Conversations',conversationSchema);
 
-module.exports=Conversations;
+export {Conversations};
