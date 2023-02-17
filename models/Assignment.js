@@ -38,12 +38,16 @@ const assignmentScchema = new mongoose.Schema({
     type: String,
     default: "",
   },
+  uploadedBy:{
+    type:  mongoose.Schema.Types.ObjectId ,
+    require:true
+  },
   points: {
     type: Number,
   },
-  files: {
+  files: [{
     type: String,
-  },
+  }],
   turnedInBy: [{
      type: mongoose.Schema.Types.ObjectId, default: [] }],
   dueDateTime: {

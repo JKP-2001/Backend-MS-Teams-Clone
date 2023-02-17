@@ -10,3 +10,8 @@ POST: /teams_clone/v1/group/createnewgrp called by user innovatorsolx@gmail.com 
 PATCH: /teams_clone/v1/group/member?action=add called by user innovatorsolx@gmail.com at 1676193439043
 PATCH: /teams_clone/v1/group/member?action=add called by user innovatorsolx@gmail.com at 1676193472354
 PATCH: /teams_clone/v1/group/member?action=add called by user innovatorsolx@gmail.com at 1676193488939
+POST: /teams_clone/v1/group/createnewgrp called by user innovatorsolx@gmail.com at 1676211356577
+POST: /teams_clone/v1/group/createnewgrp called by user innovatorsolx@gmail.com at 1676211366592
+GET: /teams_clone/v1/group/allgroups called by user at 1676211372012
+PATCH: /teams_clone/v1/group/member?action=add called by user innovatorsolx@gmail.com at 1676211639425
+PATCH: /teams_clone/v1/group/member?action=add called by user innovatorsolx@gmail.com at 1676211667463

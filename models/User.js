@@ -44,6 +44,9 @@ const userSchema = new mongoose.Schema({
     assignmentsAssign:[
         {type:mongoose.Schema.Types.ObjectId, default:[]}
     ],
+    assignmentSubmitted:[
+        {type:mongoose.Schema.Types.ObjectId, default:[]}
+    ],
     filePosted:[
         {type:mongoose.Schema.Types.ObjectId, default:[]}
     ],

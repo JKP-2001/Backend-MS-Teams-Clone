@@ -3,12 +3,22 @@ import express from "express";
 import { groupModel } from "../Models/Group.js";
 import { User } from "../models/User.js";
 import { Assignment } from "../models/Assignment.js";
+import fs from "fs"
 const getUser = async (email) => {
   const user = await User.findOne({ email });
   if (!user) throw new Error("User not found");
   return user;
 };
-
+const getAssignmentFromIds = async (assignmentArray)=>{
+  let assignments = []
+  var len = assignmentArray.length
+  for(var i=0;i<len;i++){
+    const ass = await Assignment.findById(assignmentArray[i])
+    if(!ass)continue
+    assignments.push(ass)
+  }
+  return assignments
+}
 const addOrDeleteAssignmentToUser = async (
   assId,
   members,
@@ -22,13 +32,10 @@ const addOrDeleteAssignmentToUser = async (
     if (!admin.includes(members[i]) && String(owner) !== String(members[i])) {
       let user = await User.findById(members[i]);
       if (!user) continue;
-      console.log(user);
 
       let assignmentsAssign = user.assignmentsAssign;
       if (check === "create") {
-        console.log({ assId });
         assignmentsAssign.push(assId);
-        console.log({ assignmentsAssign });
       } else {
         assignmentsAssign.splice(assignmentsAssign.indexOf(assId), 1);
       }
@@ -45,12 +52,19 @@ const createAssignment = async (req, res) => {
       throw new Error("Grp not exist");
     }
     const user = await getUser(req.user.email);
-    if (String(grp.owner) !== String(user._id)) {
+    if (String(grp.owner) !== String(user._id) && !admins.includes(user._id)) {
       throw new Error("You are not the Owner of the Team");
+    }
+    var files = [];
+    console.log(req.files)
+    for (let i = 0; i < req.files.length; i++) {
+        files.push(req.files[i].path);
     }
     const assignment = await Assignment.create({
       title: req.body.title,
+      uploadedBy:user._id,
       grpId: grp._id,
+      files:files,
       instructions: req.body.instructions,
       dueDateTime: req.body.dueDateTime,
       closedDateTime: req.body.closedDateTime,
@@ -97,15 +111,36 @@ const getAssignment = async (req, res) => {
     res.status(400).json({ success: "false", error: err.toString() });
   }
 };
-
+// 
 const uppdateAssignment = async (req, res) => {
   try {
-    const assignment = await Assignment.findById(req.params.id);
-    const grp = await groupModel.findById(assignment.grpId);
-    if (grp.owner !== req.user.id) {
+    const assignment = await Assignment.findById(assignmentId);
+    if (!assignment) {
+      throw new Error("Assignment not found");
+    }
+    const grp = await groupModel.findById(req.body.grpId);
+    if (!grp) {
+      throw new Error("Grp Not Found");
+    }
+    const user = await getUser(req.user.email);
+    if(!user){
+      throw new Error("User Not found");
+    }
+    if (String(user._id) !== String(assignment.uploadedBy))  {
       return res.status(401).json("You are not allowed to do that");
     }
-    const updatedAssignment = Cart.findByIdAndUpdate(
+    
+    for(var i=0;i<assignment.files.length;i++){
+      fs.unlinkSync(assignment.files[i])
+    }
+
+    var files = [];
+    console.log(req.files)
+    for (let i = 0; i < req.files.length; i++) {
+        files.push(req.files[i].path);
+    }
+
+    const updatedAssignment =await Assignment.findByIdAndUpdate(
       req.params.id,
       {
         $set: req.body,
@@ -121,10 +156,13 @@ const uppdateAssignment = async (req, res) => {
 const getAllAssignment = async (req, res) => {
   try {
     const grp = await groupModel.findById(req.params.id);
-    if (!grp.members.includes(req.user.id)) {
+    if(!grp)throw new Error("Group not found")
+    const user =  await getUser(req.user.email)
+    if (!grp.members.includes(user._id)) {
       return res.status(401).json("You are not a member of this Grp");
     }
-    res.status(200).json(grp.assignmentsPosted);
+    const assignmentsPosted = await getAssignmentFromIds(grp.assignmentsPosted)
+    res.status(200).json(assignmentsPosted);
   } catch (err) {
     res.status(400).json(err);
   }
@@ -139,9 +177,7 @@ const deleteAssignment = async (req, res) => {
     if (!grp) throw new Error("Group not found");
     const user = await getUser(req.user.email);
     if (
-      String(user._id) !== String(grp.owner) &&
-      !grp.admins.includes(user._id)
-    ) {
+      String(user._id) !== String(assignment.uploadedBy)) {
       throw new Error("You are not allowed to do that");
     }
     let assignmentsPosted = grp.assignmentsPosted;
@@ -160,6 +196,9 @@ const deleteAssignment = async (req, res) => {
       grp.owner,
       "delete"
     );
+    for(var i=0;i<assignment.files.length;i++){
+      fs.unlinkSync(assignment.files[i])
+    }
     await Assignment.findByIdAndDelete(assignment._id);
     res.status(200).json(assignment);
   } catch (err) {
@@ -199,10 +238,38 @@ const turnInAssignment = async (req, res) => {
     res.status(400).json(err);
   }
 };
+
+const submitAssignment = async (req,res)=>{
+  try{
+    const user = await getUser(req.user.email);
+    const assignment = await Assignment.findById(req.params.id);
+    //   console.log(assignment)
+    if (!assignment) throw new Error("Assignment not found");
+    let assignmentSubmitted,assignmentsAssign,turnedInBy
+
+    if(user.assignmentSubmitted.includes(assignment._id)){
+      assignmentSubmitted=user.assignmentSubmitted.splice(indexOf(assignment._id),1)
+      assignmentsAssign=user.assignmentsAssign.push(assignment._id)
+      turnedInBy=assignment.turnedInBy.splice(indexOf(assignment._id),1)
+    }else{
+      assignmentSubmitted = user.assignmentSubmitted.push(assignment._id);
+      assignmentsAssign=user.assignmentsAssign.splice(indexOf(assignment._id),1)
+      turnedInBy=assignment.turnedInBy.push(assignment._id)
+    }
+    
+    const updatedUser = user.findByIdAndUpdate(user._id,{assignmentSubmitted,assignmentsAssign})
+    const updatedAssignment = Assignment.findByIdAndUpdate(assignment._id,{turnedInBy})
+    res.status(200).json({updatedUser,updatedAssignment})
+  }catch(err){
+    res.status(400).json({success:false,error:err})
+  }
+}
 export {
   createAssignment,
   getAssignment,
   uppdateAssignment,
   deleteAssignment,
   turnInAssignment,
+  getAllAssignment,
+  submitAssignment
 };
