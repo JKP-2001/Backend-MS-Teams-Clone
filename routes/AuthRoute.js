@@ -2,7 +2,7 @@ import express from "express";
 const authRouter = express.Router();
 
 
-import {acceptAccount, createUser, loginUser, resetPassword, sentResetPasswordMail, checkOTP} from "../Controllers/AuthController.js";
+import {acceptAccount, createUser, loginUser, resetPassword, sentResetPasswordMail, checkOTP,getUser} from "../Controllers/AuthController.js";
 import { fetchUser } from "../middlewares/fetchUser.js";
 
 
@@ -12,6 +12,7 @@ authRouter.post("/account/login",loginUser);
 authRouter.post("/account/reset",sentResetPasswordMail);
 authRouter.patch("/account/reset/:id", resetPassword);
 authRouter.post("/account/checkotp", fetchUser, checkOTP);
+authRouter.post("/account/getUser", fetchUser, getUser);
 
 
 export default authRouter;

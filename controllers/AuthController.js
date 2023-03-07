@@ -15,6 +15,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 const createUser = async (req, res) => {
     try {
+        
         const user = await User.findOne({ email: req.body.email });
         if (user) {
             throw new Error("Email already taken.");
@@ -191,7 +192,21 @@ const resetPassword = async (req, res) => {
     }
 }
 
-export { createUser, acceptAccount, loginUser, sentResetPasswordMail, resetPassword, checkOTP };
+
+const getUser=async ( req,res)=>{
+    try{
+        const user=await User.findOne({email:req.user.email});
+        res.status(200).json({success:true,user:{firstName:user.firstName,lastName:user.lastName,email:user.email,id:user.id}});
+    }catch(error)
+    {
+        res.status(400).json({ success: false, detail: err.toString() });        
+    }
+}
+
+
+
+
+export { createUser, acceptAccount, loginUser, sentResetPasswordMail, resetPassword, checkOTP,getUser };
 
 
 

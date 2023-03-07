@@ -3,6 +3,8 @@ import {Messages} from "../models/Message.js";
 import { User } from "../models/User.js";
 
 
+
+
 const getConversation=async (req,res)=>{
     try{
         const currUser=await User.findOne({email:req.user.email});
@@ -34,7 +36,20 @@ const getAllConversations=async (req,res)=>{
     try{
         const currUser=await User.findOne({email:req.user.email});
         const allConversations = await Conversations.find({members:currUser.id});
-        res.status(400).json({success:true,allConversations});
+        let ac= await Promise.all( allConversations.map(async (c)=>{
+            let ou;
+            let cn=await Conversations.findById(c.id);
+            if(cn.members[0]===currUser.id)
+            {
+                ou=await User.findById(cn.members[1]);
+            }
+            else
+            {
+                ou=await User.findById(cn.members[0]);
+            }
+            return ou;
+        }));
+        res.status(400).json({success:true,friends:ac,allConversations});
         return ;
     }catch(err)
     {
