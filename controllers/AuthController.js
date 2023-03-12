@@ -1,10 +1,9 @@
 import dotenv from "dotenv";
 dotenv.config();
-import express from "express";
-import mongoose from "mongoose";
+
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
-import handlebars from "handlebars";
+
 
 import { User } from "../models/User.js";
 import { getDate, sendEmail, generateAndSendOTP, sendVerifyEmail, sendResetPasswordEmail } from "../functions.js";

@@ -10,6 +10,7 @@ import methodOverride from "method-override";
 import morgan from "morgan";
 import { grpRouter } from "./Routes/GrpRoutes.js";
 import ChattingRouter from "./Routes/ChattingRoutes.js";
+import userRouter from "./Routes/userRoute.js"
 
 
 
@@ -47,6 +48,7 @@ app.use((req, res, next) => {
 app.use(BASE_URL, authRouter);
 app.use(BASE_URL, grpRouter);
 app.use(BASE_URL,ChattingRouter);
+app.use(BASE_URL,userRouter);
 
 
 const swaggerDefinition = {

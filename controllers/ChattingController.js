@@ -12,7 +12,7 @@ const getConversation=async (req,res)=>{
         const conv=await Conversations.findOne({members:{$all:[currUser.id,userid]}});
         if(conv)
         {
-            res.status(200).json({success:true,conversation:conv});
+            res.status(200).json({success:true,conversation:conv,message:"already created"});
             return ;
         }
         else
@@ -21,11 +21,11 @@ const getConversation=async (req,res)=>{
                 members:[currUser.id,userid]
             })
             await c.save();
-            res.status(200).json({success:true,conversation:c});
+            res.status(200).json({success:true,conversation:c,message:"newly created"});
             return ;
         }
     }
-    catch(err)
+    catch(err) 
     {
         res.status(400).json({success:false,message:err.toString()});
     }
@@ -61,7 +61,7 @@ const getAllConversations=async (req,res)=>{
 const getMessages=async (req,res)=>{
     try{
         const cid=req.params.conv_id;
-        const Allmessages=Messages.find({conversationId:cid});
+        const Allmessages= await Messages.find({conversationId:cid});
         res.status(400).json({success:true,messages:Allmessages});
         return ;
     }catch(err)
