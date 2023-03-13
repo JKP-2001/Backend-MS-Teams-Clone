@@ -77,7 +77,9 @@ const sendMessage=async (req,res)=>{
         const message=new Messages({
             conversationId:req.body.conversationId.toString(),
             text:req.body.text,
-            senderId:currUser.id.toString()
+            senderId:currUser.id.toString(),
+            date:req.body.date,
+            time:req.body.time
         })
         await message.save();
         res.status(200).json({success:true,message});
