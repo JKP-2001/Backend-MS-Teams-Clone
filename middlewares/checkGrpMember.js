@@ -12,12 +12,13 @@ const checkGrpMember = async(req,res,next)=>{
         }
         
         const grpId = req.body.grp_id;
+        console.log({grpId})
         const grp = await groupModel.findById(grpId);
         if(!grp){
             throw new Error("Grp Not Found");
         }
         
-        if(String(grp.owner) !== String(user._id) && !grp.admins.includes(user._id) && grp.members.includes(user._id)){
+        if(String(grp.owner) !== String(user._id) && !grp.admins.includes(user._id) && !grp.members.includes(user._id)){
             throw new Error("You are not group member.");
         }
 

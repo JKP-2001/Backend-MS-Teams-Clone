@@ -11,9 +11,16 @@ const repliesSchema = new mongoose.Schema({
 })
 
 
+const filesSchema = {
+    files:{type:String,require:true},
+    name:{type:String,require:true},
+    type:{type:String,require:true},
+}
+
+
 const groupPostSchema = new mongoose.Schema({
     content:{type:String,required:true},
-    files:[{type:String,required:true}],
+    files:[filesSchema],
     replies:[{type:mongoose.Schema.Types.ObjectId, default:[]}],
     reactions:[{type:mongoose.Schema.Types.ObjectId,default:[]}],
     details:{

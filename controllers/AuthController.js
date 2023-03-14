@@ -190,8 +190,30 @@ const resetPassword = async (req, res) => {
     }
 }
 
-export { createUser, acceptAccount, loginUser, sentResetPasswordMail, resetPassword, checkOTP };
 
+const getUserProfile = async (req,res)=>{
+    try{
+        const user = req.user;
+        const userDetails = await User.findOne({email:user.email}).select("email firstName lastName role assignmentsAssign filePosted memeberGrps")
+
+        return res.status(200).json({success:true, detail:userDetails});
+    }catch(err){
+        res.status(400).json({ success: false, detail: err.toString() })
+    }
+}
+
+
+const checkTokenExpiry = async(req,res)=>{
+    try{
+        const token = req.header('auth-token');
+        const decode = jwt.verify(token,JWT_SECRET);
+        res.status(200).json({success:true});
+    }catch(err){
+        res.status(400).json({ success: false, detail: err.toString() })
+    }
+}
+
+export { createUser, acceptAccount, loginUser, sentResetPasswordMail, resetPassword, checkOTP, getUserProfile,checkTokenExpiry};
 
 
 

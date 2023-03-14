@@ -2,7 +2,7 @@ import checkAdmin from "../middlewares/checkAdmin.js";
 import express from "express";
 const grpItemRoutes = express.Router();
 import { fetchUser } from "../middlewares/fetchUser.js";
-import { createReplyToPost, postNewItem } from "../Controllers/GrpItemsController.js";
+import { createReplyToPost, deleteAItem, editPost, postNewItem } from "../Controllers/GrpItemsController.js";
 
 import multer from "multer";
 import checkGrpMember from "../middlewares/checkGrpMember.js";
@@ -36,6 +36,10 @@ const upload =
 grpItemRoutes.post("/grp/newpost",upload.array("files"),fetchUser,checkGrpMember,postNewItem)
 
 grpItemRoutes.post("/grp/reply",fetchUser,checkGrpMember,createReplyToPost);
+
+grpItemRoutes.delete("/grp/deletepost",fetchUser,checkGrpMember,deleteAItem);
+
+grpItemRoutes.patch("/grp/editpost",fetchUser,checkGrpMember,editPost);
 
 
 export {grpItemRoutes}

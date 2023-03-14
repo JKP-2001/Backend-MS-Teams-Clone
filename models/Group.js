@@ -2,6 +2,7 @@ import mongoose, { mongo } from "mongoose";
 
 const groupSchema = new mongoose.Schema({
     name:{type:String, required:true},
+    description:{type:String,},
     joiningCode:{type:String, required:true},
     owner:{type:mongoose.Schema.Types.ObjectId},
     admins:[{type:mongoose.Schema.Types.ObjectId, default:[]}],
