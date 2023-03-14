@@ -3,8 +3,6 @@ import {Messages} from "../models/Message.js";
 import { User } from "../models/User.js";
 
 
-
-
 const getConversation=async (req,res)=>{
     try{
         const currUser=await User.findOne({email:req.user.email});
