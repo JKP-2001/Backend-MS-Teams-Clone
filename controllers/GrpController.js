@@ -81,7 +81,6 @@ const getAllGroups = async (req, res) => {
         else {
             throw new Error("type required in query")
         }
-        ReadAppend(file, `GET: ${BASE_URL}/group/allgroups called by user at ${Date.now()}\n`)
         res.status(200).json({ success: true, details: allGroups });
         return;
     } catch (err) {
@@ -98,7 +97,6 @@ const getUserGroups = async (req, res) => {
         }
         const userGrpArray = user.memeberGrps;
         const result = await getAllGroupsFromArray(userGrpArray);
-        ReadAppend(file, `GET: ${BASE_URL}/group/userallgroups called by user ${user.email} at ${Date.now()}\n`);
         res.status(200).json({ success: true, details: result });
         return;
 
@@ -122,8 +120,6 @@ const addAdmins = async (req, res) => {
         }
 
         if (query === "add") {
-            ReadAppend(file, `PATCH: ${BASE_URL}/group/admin?action=add called by user ${user.email} at ${Date.now()}\n`);
-
             if (String(grp.owner) === String(user._id) || grp.admins.includes(user._id)) {
                 const reqUser = req.body.email;
                 const isUser = await User.findOne({ email: reqUser });
@@ -148,8 +144,6 @@ const addAdmins = async (req, res) => {
         }
 
         else if (query === "delete") {
-            ReadAppend(file, `PATCH: ${BASE_URL}/group/admin?action=delete called by user ${user.email} at ${Date.now()}\n`);
-
             if (String(grp.owner) === String(user._id) || grp.admins.includes(user._id)) {
                 const reqUser = req.body.email;
                 const isUser = await User.findOne({ email: reqUser });
@@ -161,9 +155,6 @@ const addAdmins = async (req, res) => {
                 }
                 if (!grp.admins.includes(isUser._id)) {
                     throw new Error("Requested email is not an admin.")
-                }
-                if (String(isUser._id) === String(grp.owner)) {
-                    throw new Error("Can remove owner from the admin.")
                 }
                 let admins = grp.admins;
                 admins.splice(admins.indexOf(isUser._id), 1);
@@ -198,8 +189,6 @@ const addUserToGroup = async (req, res) => {
         }
 
         if (query === "add") {
-            ReadAppend(file, `PATCH: ${BASE_URL}/group/member?action=add called by user ${user.email} at ${Date.now()}\n`);
-
             if (String(grp.owner) === String(user._id) || grp.admins.includes(user._id)) {
                 const reqUser = req.body.email;
                 const isUser = await User.findOne({ email: reqUser });
@@ -225,12 +214,7 @@ const addUserToGroup = async (req, res) => {
         }
 
         else if (query === "delete") {
-            ReadAppend(file, `PATCH: ${BASE_URL}/group/member?action=delete called by user ${user.email} at ${Date.now()}\n`);
-
-            
-
-            if (String(grp.owner) === String(user._id) || grp.admins.includes(user._id) || req.body.email===req.user.email) {
-
+            if (String(grp.owner) === String(user._id) || grp.admins.includes(user._id)) {
                 const reqUser = req.body.email;
                 const isUser = await User.findOne({ email: reqUser });
 
@@ -240,12 +224,14 @@ const addUserToGroup = async (req, res) => {
                 
                 let members = grp.members;
 
-
-                if (!members.includes(isUser._id)) {
+                if(members.length === 0){
+                    throw new Error("User Not Exisited In the Group.")
+                }
+                if(!members.includes(isUser._id)){
                     throw new Error("User Not Exisited In the Group.")
                 }
 
-                if (String(grp.owner) === String(isUser._id)) {
+                if(String(grp.owner) === String(isUser._id)){
                     throw new Error("You are the owner, please transfer the ownership first.");
                 }
 
@@ -277,29 +263,21 @@ const addUserToGroup = async (req, res) => {
 
 const createNewGroup = async (req, res) => {
     try {
+
         const loggeduser = req.user;
         const user = await User.findOne({ email: loggeduser.email });
         if (!user) {
             throw new Error("User Not Found");
         }
 
-        ReadAppend(file, `POST: ${BASE_URL}/group/createnewgrp called by user ${user.email} at ${Date.now()}\n`);
-
         const body = req.body;
         const grpCode = generateGrpCode();
-        const admins = [user._id];
-        const members = [user._id];
-        const desc = (body.desc) ? body.desc : '';
-        const ispublic = (body.public) ? body.public : false;
+
         const data = {
             name: "Grp_" + body.name,
             description: desc,
             joiningCode: grpCode,
             owner: user._id,
-            createdDateAndTime: Date.now(),
-            admins: admins,
-            members: members,
-            isPublic: ispublic
         }
 
         const create = await groupModel.create(data);
@@ -326,12 +304,9 @@ const deleteGroup = async (req, res) => {
 
         const loggedUser = req.user;
         const user = await User.findOne({ email: loggedUser.email });
-
         if (!user) {
             throw new Error("User Not Found");
         }
-
-        ReadAppend(file, `DELETE: ${BASE_URL}/group/deletegrp called by user ${user.email} at ${Date.now()}\n`);
 
         if (String(user._id) !== String(group.owner)) {
             throw new Error("You are not the owner of this group");
@@ -359,21 +334,17 @@ const deleteGroup = async (req, res) => {
 const getJoiningCode = async (req, res) => {
     try {
         const loggeduser = req.user;
-        const isUser = await User.findOne({ email: loggeduser.email });
-
-        if (!isUser) {
+        const isUser = await User.findOne({email:loggeduser.email});
+        if(!isUser){
             throw new Error("User not found");
         }
-
-        ReadAppend(file, `GET: ${BASE_URL}/group/getcode called by user ${isUser.email} at ${Date.now()}\n`);
-
         const grpid = req.body.group_id;
         const grp = await groupModel.findById(grpid);
         if (!grp) {
             throw new Error("Group doesn't exist");
         }
-
-        if (!grp.admins.includes(isUser._id) && String(grp.owner) !== String(isUser._id)) {
+        
+        if(!grp.admins.includes(isUser._id) && String(grp.owner) !== String(isUser._id)){
             throw new Error("You are not an admin of this group");
         }
 
@@ -391,16 +362,13 @@ const resetJoiningCode = async (req, res) => {
         if (!isUser) {
             throw new Error("User not found");
         }
-
-        ReadAppend(file, `PATCH: ${BASE_URL}/group/resetcode called by user ${isUser.email} at ${Date.now()}\n`);
-
         const grpid = req.body.group_id;
         const grp = await groupModel.findById(grpid);
         if (!grp) {
             throw new Error("Group doesn't exist");
         }
-
-        if (!grp.admins.includes(isUser._id) && String(grp.owner) !== String(isUser._id)) {
+        
+        if(!grp.admins.includes(isUser._id) && String(grp.owner) !== String(isUser._id)){
             throw new Error("You are not an admin of this group");
         }
 
@@ -421,16 +389,13 @@ const setGrpType = async (req, res) => {
         if (!isUser) {
             throw new Error("User not found");
         }
-
-        ReadAppend(file, `PATCH: ${BASE_URL}/group/setgrptype called by user ${isUser.email} at ${Date.now()}\n`);
-
         const grpid = req.body.group_id;
         const grp = await groupModel.findById(grpid);
         if (!grp) {
             throw new Error("Group doesn't exist");
         }
-
-        if (String(grp.owner) !== String(isUser._id)) {
+        
+        if(String(grp.owner) !== String(isUser._id)){
             throw new Error("You are not the owner of this group");
         }
         const updatedGrp = await groupModel.findByIdAndUpdate(grp._id, { isPublic: !grp.isPublic });
@@ -447,11 +412,10 @@ const getDetailsOfAGroup = async (req, res) => {
         if (!isUser) {
             throw new Error("User not found");
         }
-        ReadAppend(file, `GET: ${BASE_URL}/group/getDetails called by user ${isUser.email} at ${Date.now()}\n`);
         const grpid = req.body.group_id;
-        const grp = await groupModel.findById(grpid);
-
-        if (!grp) {
+        const grp= await groupModel.findById(grpid);
+        
+        if(!grp){
             throw new Error("Group doesn't exist");
         }
 
@@ -487,13 +451,10 @@ const transferOwnerShip = async (req, res) => {
         if (!isUser) {
             throw new Error("User not found");
         }
-
-        ReadAppend(file, `PATCH: ${BASE_URL}/group/transferownership called by user ${isUser.email} at ${Date.now()}\n`);
-
         const grpid = req.body.group_id;
-        const grp = await groupModel.findById(grpid);
-
-        if (!grp) {
+        const grp= await groupModel.findById(grpid);
+        
+        if(!grp){
             throw new Error("Group doesn't exist");
         }
 
@@ -502,22 +463,15 @@ const transferOwnerShip = async (req, res) => {
         }
 
         const newOwnerEmail = req.body.email;
-        const newUser = await User.findOne({ email: newOwnerEmail });
-
-        if (!newUser) {
+        const newUser = await User.findOne({email:newOwnerEmail});
+        
+        if(!newUser){
             throw new Error("Requested user is not exisited.");
         }
 
         if (String(newUser._id) === String(grp.owner)) {
             throw new Error("You cannot add yourself as owner.");
         }
-
-        let members = grp.members;
-        if (!members.includes(newUser._id)) {
-            throw new Error("You can transfer ownership only to the members of the group.")
-        }
-
-        // members.push(newUser._id);
 
         let admins = grp.admins;
         if (!admins.includes(newUser._id)) {
@@ -532,21 +486,52 @@ const transferOwnerShip = async (req, res) => {
     }
 }
 
-const joinGrpByCode = async (req, res) => {
-    try {
+// const joinGrpByCode = async (req, res) => {
+//     try {
+//         const loggedUser = req.user;
+//         const user = await User.findOne({ email: loggedUser.email });
+//         if (!user) {
+//             throw new Error("User not found");
+//         }
+//         ReadAppend(file, `PATCH: ${BASE_URL}/group/joinbycode called by user ${user.email} at ${Date.now()}\n`);
+//         const grpCode = req.body.grp_code;
+//         const grp = await groupModel.findOne({ joiningCode: grpCode });
+//         if (!grp) {
+//             throw new Error("Grp Doesn't Exist Or Code Expired");
+//         }
+
+//         if (grp.members.includes(user._id) || grp.admins.includes(user._id) || String(grp.owner) === String(user._id)) {
+//             throw new Error("Already a member.")
+//         }
+
+//         let members = grp.members;
+//         if(!members.includes(newUser._id)){
+//             members.push(newUser._id);
+//         }
+
+//         const updatedGroup = await groupModel.findByIdAndUpdate(grp._id,{owner:newUser._id, admins, members});
+//         res.status(200).json({success:true, details:`ownership transferred to ${newOwnerEmail}`});
+//         return;
+//     }catch(err){
+//         res.status(400).json({ "success": false, error: err.toString() });
+//     }
+// }
+
+const joinGrpByCode = async(req,res)=>{
+    try{
         const loggedUser = req.user;
-        const user = await User.findOne({ email: loggedUser.email });
-        if (!user) {
+        const user = await User.findOne({email:loggedUser.email});
+        if(!user){
             throw new Error("User not found");
         }
-        ReadAppend(file, `PATCH: ${BASE_URL}/group/joinbycode called by user ${user.email} at ${Date.now()}\n`);
+        ReadAppend(file,`PATCH: ${BASE_URL}/group/joinbycode called by user ${user.email} at ${Date.now()}\n`);
         const grpCode = req.body.grp_code;
-        const grp = await groupModel.findOne({ joiningCode: grpCode });
-        if (!grp) {
+        const grp = await groupModel.findOne({joiningCode:grpCode});
+        if(!grp){
             throw new Error("Grp Doesn't Exist Or Code Expired");
         }
 
-        if (grp.members.includes(user._id) || grp.admins.includes(user._id) || String(grp.owner) === String(user._id)) {
+        if(grp.members.includes(user._id) || grp.admins.includes(user._id) || String(grp.owner) === String(user._id)){
             throw new Error("Already a member.")
         }
 
@@ -554,94 +539,12 @@ const joinGrpByCode = async (req, res) => {
         members.push(user._id);
         let memeberGrps = user.memeberGrps;
         memeberGrps.push(grp._id);
-        const addedUser = await groupModel.findByIdAndUpdate(grp._id, { members });
-        const addedGrp = await User.findByIdAndUpdate(user._id, { memeberGrps });
-        res.status(200).json({ success: true, details: `Successfully added to the Grp.` })
+        const addedUser = await groupModel.findByIdAndUpdate(grp._id,{members});
+        const addedGrp = await User.findByIdAndUpdate(user._id,{memeberGrps});
+        res.status(200).json({success:true, details:`${user.email} successfully added to the grp`})
         return;
 
-    } catch (err) {
-        res.status(400).json({ "success": false, error: err.toString() });
-    }
-}
-
-
-const getAllMembers = async (req, res) => {
-    try {
-        const loggedUser = req.user;
-
-        const isUser = await User.findOne({ email: loggedUser.email });
-        if (!isUser) {
-            throw new Error("User not found");
-        }
-
-        const grpid = req.body.group_id;
-        const grp = await groupModel.findById(grpid);
-
-        if (!grp) {
-            throw new Error("Group doesn't exist");
-        }
-
-        if (!grp.admins.includes(isUser._id) && String(grp.owner) !== String(isUser._id) && !grp.members.includes(isUser._id)) {
-            throw new Error("You are not a member of this group");
-        }
-
-        const owner = await User.findById(grp.owner).select("firstName lastName email");;
-        let admins = await getAllMembersFromArray(grp.admins);
-        let members = await getAllMembersFromArray(grp.members);
-        let newAdmins = [];
-        for (let i = 0; i < admins.length; i++) {
-            if (admins[i].email !== owner.email) {
-                newAdmins.push(admins[i]);
-            }
-        }
-        let newMember = [];
-        for (let i = 0; i < members.length; i++) {
-            if (!grp.admins.includes(members[i]._id)) {
-                newMember.push(members[i]);
-            }
-        }
-
-        res.status(200).json({
-            success: true, details: {
-                admins: newAdmins,
-                members: newMember,
-                owner
-            }
-        });
-
-    } catch (err) {
-        res.status(400).json({ "success": false, error: err.toString() });
-    }
-}
-
-
-const getAllItemsOfAGrp = async (req, res) => {
-    try {
-        const loggedUser = req.user;
-
-        const isUser = await User.findOne({ email: loggedUser.email });
-        if (!isUser) {
-            throw new Error("User not found");
-        }
-
-        const grpid = req.body.group_id;
-        const grp = await groupModel.findById(grpid);
-
-        if (!grp) {
-            throw new Error("Group doesn't exist");
-        }
-
-        if (!grp.admins.includes(isUser._id) && String(grp.owner) !== String(isUser._id) && !grp.members.includes(isUser._id)) {
-            throw new Error("You are not a member of this group");
-        }
-         
-        const grpItems = grp.itemsPosted;
-
-        const allItems = await getItemFromArray(grpItems);
-        // console.log(allItems);
-        res.status(200).json({success:true, details:allItems})
-
-    } catch (err) {
+    }catch(err){
         res.status(400).json({ "success": false, error: err.toString() });
     }
 }
@@ -673,4 +576,4 @@ const getAllItemsOfAGrp = async (req, res) => {
 //ll
 
 
-export { createNewGroup, deleteGroup, getAllGroups, getUserGroups, addAdmins, addUserToGroup, getJoiningCode, resetJoiningCode, setGrpType, getDetailsOfAGroup, transferOwnerShip, joinGrpByCode, getAllMembers, getAllItemsOfAGrp };
+export { createNewGroup, deleteGroup, getAllGroups, getUserGroups, addAdmins, addUserToGroup, getJoiningCode, resetJoiningCode, setGrpType, getDetailsOfAGroup, transferOwnerShip};
